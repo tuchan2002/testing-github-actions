@@ -9,9 +9,26 @@ on:
       - 'master'
       - 'release/**'
       - '!develop/**'
+  pull_request:
+    type: [opened, reopened, synchronize, labeled, unlabeled]
+    paths:
+      - '!README.md'
+      - '!docs/**'
+      - '**.js'
+    branches:
+      - 'master'
+      - 'release/**'
+      - '!develop/**'
 jobs:
   say-hello:
     runs-on: ubuntu-latest
     steps:
+      - if: ${{ github.event_name == 'pull_request' }}
+        uses: mheap/github-action-required-labels@v3
+        with:
+          mode: exactly
+          count: 0
+          labels: "do not build"
       - run: echo "TODAY=$(date +%y-%m-%d)" >> $GITHUB_ENV 
       - run: echo Hello World, today is $TODAY
+      - run: docker image ls
